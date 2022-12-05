@@ -11,7 +11,9 @@ public class ConnectDB {
 
         try {
             Class.forName("org.postgresql.Driver"); //questo mi va <-> lo metto nella libreria!
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/assign3", "postgres", "1324"); /*
+            connection = DriverManager.getConnection("jdbc:postgresql://sci-didattica.unitn.it:5432/db_024","db_024","1324");
+            //connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/assign3", "postgres", "1324");
+            /*so we use this connection in order to connect to our local db
             So like this we are writing host = localhost and dbName: PostgreSQL_15;
             username : postgres
             password : 1324
@@ -114,25 +116,40 @@ public class ConnectDB {
         //////////////////////////////////////////////////////////
         ////////////////3o quesito//////////////////////////////
 
-        HashSet<Float> listFloat = new HashSet<Float>();
+        ArrayList<Float> listFloat = new ArrayList<Float>();
         ArrayList<Integer> listInt = new ArrayList<Integer>();
         Random random = new Random();
         float startFloat = 0;
         int startInt = 0;
-        while (listFloat.size() < 999 || listInt.size() < 1000) {
-            if (listFloat.size() < 999) {
+        /*
+        while (listFloat.size() < 1000000 || listInt.size() < 1000000) {
+            System.out.println("listFloatSize = " + listFloat.size());
+            if (listFloat.size() < 999999) {
                 startFloat = startFloat + random.nextFloat();
-                if (startFloat != 1940)
+                if (startFloat != 1940F)
                     listFloat.add(startFloat);
             }
-            if (listInt.size() < 1000) {
+            if (listInt.size() < 1000000) {
                 startInt = startInt + random.nextInt(1000);
                 if (!listInt.contains(startInt))
                     listInt.add(startInt);
             }
             //credo che tutti questi controlli potrei anche toglierli ma per sicurezza li lascio
         }
+
+         */
+        while (listFloat.size() < 100000) {
+            //System.out.println(listFloat.size());
+            startFloat = startFloat + random.nextFloat(1,100);
+            if (startFloat != 1940F)
+                listFloat.add(startFloat);
+
+        }
         listFloat.add(1940F);
+        while (listInt.size() < 1000000) {
+            startInt = startInt + random.nextInt(1,100);
+            listInt.add(startInt);
+        }
         Collections.shuffle(listInt);
 
         command= "INSERT INTO professor(id, name, address, age, department) " +
@@ -143,6 +160,7 @@ public class ConnectDB {
             String name_base = "John";
             Calendar cal = Calendar.getInstance();
             for (float t : listFloat) {
+
                 statement.setInt(1,listInt.get(index)); //ne prendo a caso, però ho dovuto mettere index come integer
                 String timeInMillis = Float.toString(cal.getTimeInMillis());
                 //statement.setString(2,name_base+timeInMillis.substring(timeInMillis.length()-5,timeInMillis.length()-1));
@@ -152,24 +170,26 @@ public class ConnectDB {
                 statement.setFloat(5,t);
                 // solo il nome lo sto facendo con numeri a caso, il resto index per address e age
                 statement.addBatch();
+                if ((index % 100 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti
+                    statement.executeBatch();
+                }
 
             }
-            if ((index % 1000 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti
-                statement.executeBatch();
-            }
+
         }catch(SQLException ex) {
             System.out.println(ex.getMessage());
         }
         endTime = System.nanoTime();
         System.out.println("Step 3 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
+
         //////////////////////////////////////////////////////////////////////////
         //////////////////////4o quesito/////////////////////////////////////////
-
-        listFloat = new HashSet<Float>();
+        /*
+        listFloat = new ArrayList<>();
         //random = new Random(); non credo abbia fare una nuova istanza
         startFloat = 0;
-        while (listFloat.size() < 1000) {
+        while (listFloat.size() < 1000000) {
             startFloat = startFloat + random.nextFloat();
             listFloat.add(startFloat);
         }
@@ -189,11 +209,12 @@ public class ConnectDB {
                 statement.setInt(4,listInt.get(index++));
                 //dovrei aver gestito bene anche la FK!
                 statement.addBatch();
+                if ((index % 10000 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti
+                    statement.executeBatch();
+                }
 
             }
-            if ((index % 1000 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti
-                statement.executeBatch();
-            }
+
         }catch(SQLException ex) {
             System.out.println(ex.getMessage());
         }
@@ -220,6 +241,8 @@ public class ConnectDB {
         endTime = System.nanoTime();
         System.out.println("Step 5 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
+
+         */
         ////////////////////verifica///////////////////////
         /*
         command = "select p.id from professor p where p.department = 1940";
@@ -240,7 +263,7 @@ public class ConnectDB {
          */
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 6//////////////////////////////
-
+        /*
         command = "UPDATE professor " +
                 "SET department = 1973 " +
                 "WHERE department = 1940";
@@ -276,8 +299,11 @@ public class ConnectDB {
         endTime = System.nanoTime();
         System.out.println("Step 7 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
+
+         */
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 8//////////////////////////////
+        /*
         stmt = connection.createStatement();
         command = "CREATE INDEX ON professor USING btree(department)";
         stmt.executeUpdate(command);
@@ -285,6 +311,8 @@ public class ConnectDB {
         endTime = System.nanoTime();
         System.out.println("Step 8 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
+
+         */
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 9//////////////////////////////
         /*
