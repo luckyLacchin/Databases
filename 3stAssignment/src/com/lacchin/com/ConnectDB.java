@@ -141,23 +141,19 @@ public class ConnectDB {
 
          */
         while (listFloat.size() < 999999) {
-            System.out.println(listFloat.size());
+            //System.out.println(listFloat.size());
             tempFloat = random.nextFloat(100);
-            if (tempFloat != 0) {
-                startFloat = startFloat + tempFloat;
-                if (startFloat != 1940F)
-                    listFloat.add(startFloat);
-            }
+            startFloat = startFloat + tempFloat + 1;
+            if (startFloat != 1940F)
+                listFloat.add(startFloat);
 
         }
         listFloat.add(1940F);
         while (listInt.size() < 1000000) {
-            System.out.println(listInt.size());
-            tempInt = random.nextInt(100);
-            if (tempInt != 0) {
-                startInt = startInt + tempInt;
-                listInt.add(startInt);
-            }
+            //System.out.println(listInt.size());
+            tempInt = random.nextInt(5);
+            startInt = startInt + tempInt + 1;
+            listInt.add(startInt);
         }
         Collections.shuffle(listInt);
 
@@ -169,7 +165,7 @@ public class ConnectDB {
             String name_base = "John";
             Calendar cal = Calendar.getInstance();
             for (float t : listFloat) {
-                System.out.println(index);
+                //System.out.println(index);
                 statement.setInt(1,listInt.get(index)); //ne prendo a caso, però ho dovuto mettere index come integer
                 String timeInMillis = Float.toString(cal.getTimeInMillis());
                 //statement.setString(2,name_base+timeInMillis.substring(timeInMillis.length()-5,timeInMillis.length()-1));
@@ -194,16 +190,14 @@ public class ConnectDB {
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////4o quesito/////////////////////////////////////////
-        /*
+
         listFloat = new ArrayList<>();
         //random = new Random(); non credo abbia fare una nuova istanza
         startFloat = 0;
         while (listFloat.size() < 1000000) {
-            tempFloat = random.nextFloat(100);
-            if (tempFloat != 0) {
-                startFloat = startFloat + tempFloat;
-                listFloat.add(startFloat);
-            }
+            tempFloat = random.nextFloat(5);
+            startFloat = startFloat + tempFloat + 1F;
+            listFloat.add(startFloat);
         }
             //credo che tutti questi controlli potrei anche toglierli ma per sicurezza li lascio
 
@@ -212,7 +206,7 @@ public class ConnectDB {
         try {
             PreparedStatement statement = connection.prepareStatement(command);
             int index = 0;
-            String name_base = "Course";
+            String name_base = "Name";
             Calendar cal = Calendar.getInstance();
             for (float t : listFloat) {
                 statement.setString(1,"Course"+ t);
@@ -221,7 +215,7 @@ public class ConnectDB {
                 statement.setInt(4,listInt.get(index++));
                 //dovrei aver gestito bene anche la FK!
                 statement.addBatch();
-                if ((index % 10000 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti
+                if ((index % 100000 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti
                     statement.executeBatch();
                 }
 
@@ -236,6 +230,7 @@ public class ConnectDB {
         //non so perché me lo mette double precision e non FLOAT department!!!
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 5//////////////////////////////
+        /*
         command = "select p.id from professor p";
         results = executeQuery(command,connection);
         try {
