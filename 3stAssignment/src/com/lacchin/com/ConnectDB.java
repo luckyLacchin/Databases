@@ -141,7 +141,7 @@ public class ConnectDB {
 
          */
         while (listFloat.size() < 999999) {
-            //System.out.println(listFloat.size());
+            System.out.println(listFloat.size());
             tempFloat = random.nextFloat(100);
             if (tempFloat != 0) {
                 startFloat = startFloat + tempFloat;
@@ -152,6 +152,7 @@ public class ConnectDB {
         }
         listFloat.add(1940F);
         while (listInt.size() < 1000000) {
+            System.out.println(listInt.size());
             tempInt = random.nextInt(100);
             if (tempInt != 0) {
                 startInt = startInt + tempInt;
@@ -168,7 +169,7 @@ public class ConnectDB {
             String name_base = "John";
             Calendar cal = Calendar.getInstance();
             for (float t : listFloat) {
-
+                System.out.println(index);
                 statement.setInt(1,listInt.get(index)); //ne prendo a caso, però ho dovuto mettere index come integer
                 String timeInMillis = Float.toString(cal.getTimeInMillis());
                 //statement.setString(2,name_base+timeInMillis.substring(timeInMillis.length()-5,timeInMillis.length()-1));
@@ -178,7 +179,7 @@ public class ConnectDB {
                 statement.setFloat(5,t);
                 // solo il nome lo sto facendo con numeri a caso, il resto index per address e age
                 statement.addBatch();
-                if ((index % 100 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti
+                if ((index % 100000 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti, forse sarebbe meglio fare meno di 10 mila
                     statement.executeBatch();
                 }
 
