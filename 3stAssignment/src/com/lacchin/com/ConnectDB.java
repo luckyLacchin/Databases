@@ -76,6 +76,8 @@ public class ConnectDB {
         long endTime = -1;
         ResultSet results = null;
         Statement stmt = null;
+        int tempInt;
+        float tempFloat;
         ///////////////////////////////////////////////////////////////
         //1o quesito//////////////////////////////////////////////////
         boolean exists = false;
@@ -138,17 +140,23 @@ public class ConnectDB {
         }
 
          */
-        while (listFloat.size() < 100000) {
+        while (listFloat.size() < 999999) {
             //System.out.println(listFloat.size());
-            startFloat = startFloat + random.nextFloat(1,100);
-            if (startFloat != 1940F)
-                listFloat.add(startFloat);
+            tempFloat = random.nextFloat(100);
+            if (tempFloat != 0) {
+                startFloat = startFloat + tempFloat;
+                if (startFloat != 1940F)
+                    listFloat.add(startFloat);
+            }
 
         }
         listFloat.add(1940F);
         while (listInt.size() < 1000000) {
-            startInt = startInt + random.nextInt(1,100);
-            listInt.add(startInt);
+            tempInt = random.nextInt(100);
+            if (tempInt != 0) {
+                startInt = startInt + tempInt;
+                listInt.add(startInt);
+            }
         }
         Collections.shuffle(listInt);
 
@@ -190,8 +198,11 @@ public class ConnectDB {
         //random = new Random(); non credo abbia fare una nuova istanza
         startFloat = 0;
         while (listFloat.size() < 1000000) {
-            startFloat = startFloat + random.nextFloat();
-            listFloat.add(startFloat);
+            tempFloat = random.nextFloat(100);
+            if (tempFloat != 0) {
+                startFloat = startFloat + tempFloat;
+                listFloat.add(startFloat);
+            }
         }
             //credo che tutti questi controlli potrei anche toglierli ma per sicurezza li lascio
 
