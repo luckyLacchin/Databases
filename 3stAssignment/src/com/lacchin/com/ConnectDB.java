@@ -95,7 +95,7 @@ public class ConnectDB {
         Statement  st = connection.createStatement();
         String sql = "DROP TABLE if exists \"Course\";";
         executeStatement(sql,connection);
-        sql = "DROP TABLE if exists \"Course\";";
+        sql = "DROP TABLE if exists \"Professor\";";
         executeStatement(sql,connection);
         st.close();
     }
@@ -377,6 +377,7 @@ public class ConnectDB {
         startTime = endTime;
 
         ////////////////////verifica///////////////////////
+        /*
         String command = "";
         ResultSet results = null;
         command = "select p.id from \"Professor\" p where p.department = 1940";
@@ -388,6 +389,8 @@ public class ConnectDB {
         stmt = results.getStatement();
         results.close();
         stmt.close();
+
+         */
 
 
 
