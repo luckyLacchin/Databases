@@ -5,6 +5,10 @@ import java.util.*;
 
 public class ConnectDB {
 
+    static Connection connection;
+    static ArrayList<Float> listFloat;
+    static ArrayList<Integer> listInt;
+
 
     public static Connection getConnection () {
         Connection connection = null;
@@ -65,90 +69,65 @@ public class ConnectDB {
             return null; //non so quando potrebbe dare eccezione sinceramente.
         }
     }
-
-
-    public static void main(String[] args) throws SQLException {
-
-        Connection connection = null;
-        String command = "";
-        connection = getConnection();
-        long startTime = System.nanoTime();
-        long endTime = -1;
-        ResultSet results = null;
-        Statement stmt = null;
-        int tempInt;
-        float tempFloat;
-        ///////////////////////////////////////////////////////////////
-        //1o quesito//////////////////////////////////////////////////
+    public static void step1 () throws SQLException {
+        /*
         boolean exists = false;
         boolean exists1 = false;
+
         try {
-            exists = tableExist(connection, "professor");
-            exists1 = tableExist(connection, "course");
+            exists = tableExist(connection, "\"Professor\"");
+            exists1 = tableExist(connection, "\"Course\"");
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("E' avvenuta un'eccezione nell'esecuzione dei metodi");
         }
 
         if (exists1) {
-            command = "drop table Course";
+            command = "drop table \"Course\"";
             executeStatement(command,connection);
         }
         if (exists) {
-            command = "drop table Professor";
+            command = "drop table \"Professor\"";
             executeStatement(command,connection);
             //System.out.println("ciao");
         }
-        endTime = System.nanoTime();
-        System.out.println("Step 1 needs " + (endTime - startTime) + " ns" );
-        startTime = endTime;
-        //oK! funziona l'unica cosa è che devo mettere professor e course minuscoli --> case sensitive, il problema è che mi vengono salvati nel db minuscoli....DA CHIEDERE
-        ////////////////////////////////////////////////////////////
-        ////////////////////2o quesito////////////////////////////
-
-        command = "create table Professor (id INTEGER not NULL, name CHAR(50) not NULL, address CHAR (50) not NULL, " +
-                "age INTEGER not NULL, department FLOAT not NULL, PRIMARY KEY (id))";
+         */
+        Statement  st = connection.createStatement();
+        String sql = "DROP TABLE if exists \"Course\";";
+        executeStatement(sql,connection);
+        sql = "DROP TABLE if exists \"Course\";";
+        executeStatement(sql,connection);
+        st.close();
+    }
+    public static void step2() throws SQLException {
+        String command = "";
+        command = "create table \"Professor\" (id INTEGER NOT NULL, name CHAR(50) NOT NULL, address CHAR (50) NOT NULL, " +
+                "age INTEGER NOT NULL, department FLOAT NOT NULL, PRIMARY KEY (id))";
         executeStatement(command,connection);
-        command = "create table Course (cid CHAR(25) not NULL, cname CHAR(50) not NULL, credits CHAR (30) not NULL, " +
-                "teacher INTEGER not NULL, PRIMARY KEY (cid), FOREIGN KEY(teacher) REFERENCES professor)";
+        command = "create table \"Course\" (cid CHAR(25) NOT NULL, cname CHAR(50) NOT NULL, credits CHAR (30) NOT NULL, " +
+                "teacher INTEGER NOT NULL, PRIMARY KEY (cid), FOREIGN KEY(teacher) REFERENCES \"Professor\")";
         executeStatement(command,connection);
-        endTime = System.nanoTime();
-        System.out.println("Step 2 needs " + (endTime - startTime) + " ns" );
-        startTime = endTime;
-        //////////////////////////////////////////////////////////
-        ////////////////3o quesito//////////////////////////////
+    }
 
-        ArrayList<Float> listFloat = new ArrayList<Float>();
-        ArrayList<Integer> listInt = new ArrayList<Integer>();
+    public static void step3() throws SQLException {
+
+        listFloat = new ArrayList<Float>();
+        listInt = new ArrayList<Integer>();
         Random random = new Random();
         float startFloat = 0;
         int startInt = 0;
-        /*
-        while (listFloat.size() < 1000000 || listInt.size() < 1000000) {
-            System.out.println("listFloatSize = " + listFloat.size());
-            if (listFloat.size() < 999999) {
-                startFloat = startFloat + random.nextFloat();
-                if (startFloat != 1940F)
-                    listFloat.add(startFloat);
-            }
-            if (listInt.size() < 1000000) {
-                startInt = startInt + random.nextInt(1000);
-                if (!listInt.contains(startInt))
-                    listInt.add(startInt);
-            }
-            //credo che tutti questi controlli potrei anche toglierli ma per sicurezza li lascio
-        }
+        int tempInt = 0;
+        float tempFloat = 0;
+        String command = "";
 
-         */
         while (listFloat.size() < 999999) {
             //System.out.println(listFloat.size());
-            tempFloat = random.nextFloat(100);
+            tempFloat = random.nextFloat(5);
             startFloat = startFloat + tempFloat + 1;
-            if (startFloat != 1940F)
+            if (startFloat != 1940)
                 listFloat.add(startFloat);
 
         }
-        listFloat.add(1940F);
         while (listInt.size() < 1000000) {
             //System.out.println(listInt.size());
             tempInt = random.nextInt(5);
@@ -157,51 +136,55 @@ public class ConnectDB {
         }
         Collections.shuffle(listInt);
 
-        command= "INSERT INTO professor(id, name, address, age, department) " +
+        command= "INSERT INTO \"Professor\"(id, name, address, age, department) " +
                 " VALUES (?,?,?,?,?)";
-        try {
-            PreparedStatement statement = connection.prepareStatement(command);
-            int index = 0;
-            String name_base = "John";
-            Calendar cal = Calendar.getInstance();
-            for (float t : listFloat) {
-                //System.out.println(index);
-                statement.setInt(1,listInt.get(index)); //ne prendo a caso, però ho dovuto mettere index come integer
-                String timeInMillis = Float.toString(cal.getTimeInMillis());
-                //statement.setString(2,name_base+timeInMillis.substring(timeInMillis.length()-5,timeInMillis.length()-1));
-                statement.setString(2,name_base+index);
-                statement.setString(3,"Address"+(index));
-                statement.setInt(4,index++);
-                statement.setFloat(5,t);
-                // solo il nome lo sto facendo con numeri a caso, il resto index per address e age
-                statement.addBatch();
-                if ((index % 100000 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti, forse sarebbe meglio fare meno di 10 mila
-                    statement.executeBatch();
-                }
-
+        PreparedStatement statement = connection.prepareStatement(command);
+        int index = 0;
+        String name_base = "John";
+        Calendar cal = Calendar.getInstance();
+        for (float t : listFloat) {
+            //System.out.println(index);
+            statement.setInt(1,listInt.get(index)); //ne prendo a caso, però ho dovuto mettere index come integer
+            //String timeInMillis = Float.toString(cal.getTimeInMillis());
+            //statement.setString(2,name_base+timeInMillis.substring(timeInMillis.length()-5,timeInMillis.length()-1));
+            statement.setString(2,name_base+index);
+            statement.setString(3,"Address"+(index));
+            statement.setInt(4,index++);
+            statement.setFloat(5,t);
+            // solo il nome lo sto facendo con numeri a caso, il resto index per address e age
+            statement.addBatch();
+            if (index % 100000 == 0) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti, forse sarebbe meglio fare meno di 10 mila
+                statement.executeBatch();
             }
-
-        }catch(SQLException ex) {
-            System.out.println(ex.getMessage());
         }
-        endTime = System.nanoTime();
-        System.out.println("Step 3 needs " + (endTime - startTime) + " ns" );
-        startTime = endTime;
+        statement.setInt(1,listInt.get(index)); //ne prendo a caso, però ho dovuto mettere index come integer
+        statement.setString(2,name_base+index);
+        statement.setString(3,"Address"+(index));
+        statement.setInt(4,index);
+        statement.setFloat(5,1940);
+        statement.addBatch();
+        statement.executeBatch();
+    }
 
-        //////////////////////////////////////////////////////////////////////////
-        //////////////////////4o quesito/////////////////////////////////////////
+    public static void step4 () {
 
-        listFloat = new ArrayList<>();
-        //random = new Random(); non credo abbia fare una nuova istanza
+        listFloat = new ArrayList<>(); //potrei usare la stessa lista di prima, ma credo che anche così vada bene
+        Random random = new Random();
+        float startFloat = 0;
+        int startInt = 0;
+        int tempInt = 0;
+        float tempFloat = 0;
+        String command = "";
         startFloat = 0;
+
         while (listFloat.size() < 1000000) {
             tempFloat = random.nextFloat(5);
             startFloat = startFloat + tempFloat + 1F;
             listFloat.add(startFloat);
         }
-            //credo che tutti questi controlli potrei anche toglierli ma per sicurezza li lascio
+        //credo che tutti questi controlli potrei anche toglierli ma per sicurezza li lascio
 
-        command = "INSERT INTO course(cid, cname, credits, teacher) " +
+        command = "INSERT INTO \"Course\"(cid, cname, credits, teacher) " +
                 " VALUES (?,?,?,?)";
         try {
             PreparedStatement statement = connection.prepareStatement(command);
@@ -224,14 +207,14 @@ public class ConnectDB {
         }catch(SQLException ex) {
             System.out.println(ex.getMessage());
         }
-        endTime = System.nanoTime();
-        System.out.println("Step 4 needs " + (endTime - startTime) + " ns" );
-        startTime = endTime;
-        //non so perché me lo mette double precision e non FLOAT department!!!
-        //////////////////////////////////////////////////////////
-        //////////////////QUESITO 5//////////////////////////////
-        /*
-        command = "select p.id from professor p";
+    }
+
+    public static void step5 () {
+        ResultSet results = null;
+        String command = "";
+        Statement stmt = null;
+
+        command = "select p.id from \"Professor\" p";
         results = executeQuery(command,connection);
         try {
             while (results.next()) {
@@ -245,11 +228,154 @@ public class ConnectDB {
             e.printStackTrace();
             throw new RuntimeException();
         }
+    }
+
+    public static void step6 () {
+
+        String command = "";
+        Statement stmt = null;
+        ResultSet results = null;
+
+        command = "UPDATE \"Professor\" " +
+                "SET department = 1973 " +
+                "WHERE department = 1940";
+        try {
+            stmt = connection.createStatement();
+            int count = stmt.executeUpdate(command);
+            //System.out.println("Sono state aggiornate " + count + " tuple");
+        }catch(SQLException e) {
+            System.out.println("Errore nella creazione dello statement");
+        }
+    }
+
+    public static void step7 () throws SQLException {
+
+        String command = "";
+        ResultSet results = null;
+        Statement stmt = null;
+
+        command = "SELECT p.id, p.address FROM \"Professor\" p WHERE p.department = 1973";
+        results = executeQuery(command,connection);
+        while (results.next()) {
+            int id = results.getInt(1);
+            String address = results.getString(3);
+            System.err.println(id + ", " + address);
+        }
+        stmt = results.getStatement();
+        results.close();
+        stmt.close();
+
+    }
+
+    public static void step8 () throws SQLException {
+        Statement stmt = null;
+        String command = "";
+
+        stmt = connection.createStatement();
+        command = "CREATE INDEX ON \"Professor\" USING btree(department)";
+        stmt.executeUpdate(command);
+        stmt.close();
+    }
+
+    public static void step9() {
+        ResultSet results = null;
+        String command = "";
+        Statement stmt = null;
+
+        command = "select p.id from \"Professor\" p";
+        results = executeQuery(command,connection);
+        try {
+            while (results.next()) {
+                int id = results.getInt(1);
+                System.err.println(id);
+            }
+            stmt = results.getStatement();
+            results.close();
+            stmt.close();
+        }catch(Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+    }
+
+    public static void step10 () {
+        String command = "";
+        Statement stmt = null;
+        ResultSet results = null;
+
+        command = "UPDATE \"Professor\" " +
+                "SET department = 1974 " +
+                "WHERE department = 1973";
+        try {
+            stmt = connection.createStatement();
+            int count = stmt.executeUpdate(command);
+            //System.out.println("Sono state aggiornate " + count + " tuple");
+        }catch(SQLException e) {
+            System.out.println("Errore nella creazione dello statement");
+        }
+    }
+
+    public static void step11 () throws SQLException {
+        String command = "";
+        ResultSet results = null;
+        Statement stmt = null;
+
+        command = "SELECT p.id, p.address FROM \"Professor\" p WHERE p.department = 1974";
+        results = executeQuery(command,connection);
+        while (results.next()) {
+            int id = results.getInt(1);
+            String address = results.getString(3);
+            System.err.println(id + ", " + address);
+        }
+        stmt = results.getStatement();
+        results.close();
+        stmt.close();
+
+    }
+
+
+    public static void main(String[] args) throws SQLException {
+
+        connection = getConnection();
+        long startTime = System.nanoTime();
+        long endTime = -1;
+        Statement stmt = null;
+        int tempInt;
+        float tempFloat;
+        ///////////////////////////////////////////////////////////////
+        //1o quesito//////////////////////////////////////////////////
+        step1();
+        endTime = System.nanoTime();
+        System.out.println("Step 1 needs " + (endTime - startTime) + " ns" );
+        startTime = endTime;;
+        //oK! funziona l'unica cosa è che devo mettere professor e course minuscoli --> case sensitive, il problema è che mi vengono salvati nel db minuscoli....DA CHIEDERE
+        ////////////////////////////////////////////////////////////
+        ////////////////////2o quesito////////////////////////////
+        step2();
+        endTime = System.nanoTime();
+        System.out.println("Step 2 needs " + (endTime - startTime) + " ns" );
+        startTime = endTime;
+        //////////////////////////////////////////////////////////
+        ////////////////3o quesito//////////////////////////////
+        step3();
+        endTime = System.nanoTime();
+        System.out.println("Step 3 needs " + (endTime - startTime) + " ns" );
+        startTime = endTime;
+
+        //////////////////////////////////////////////////////////////////////////
+        //////////////////////4o quesito/////////////////////////////////////////
+        step4();
+        endTime = System.nanoTime();
+        System.out.println("Step 4 needs " + (endTime - startTime) + " ns" );
+        startTime = endTime;
+        //non so perché me lo mette double precision e non FLOAT department!!!
+        //////////////////////////////////////////////////////////
+        //////////////////QUESITO 5//////////////////////////////
+        step5();
         endTime = System.nanoTime();
         System.out.println("Step 5 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
 
-         */
         ////////////////////verifica///////////////////////
         /*
         command = "select p.id from professor p where p.department = 1940";
@@ -270,76 +396,52 @@ public class ConnectDB {
          */
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 6//////////////////////////////
-        /*
-        command = "UPDATE professor " +
-                "SET department = 1973 " +
-                "WHERE department = 1940";
-        try {
-            stmt = connection.createStatement();
-            int count = stmt.executeUpdate(command);
-            //System.out.println("Sono state aggiornate " + count + " tuple");
-        }catch(SQLException e) {
-            System.out.println("Errore nella creazione dello statement");
-        }
+
+        step6();
         endTime = System.nanoTime();
         System.out.println("Step 6 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 7//////////////////////////////
 
-        command = "SELECT p.id, p.address FROM professor p WHERE p.department = 1973";
-        results = executeQuery(command,connection);
-        try {
-            while (results.next()) {
-                int id = results.getInt(1);
-                String address = results.getString(2);
-                System.err.println(id + " " + address);
-            }
-            stmt = results.getStatement();
-            results.close();
-            stmt.close();
-        }catch(Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException();
-        }
-
+        step7();
         endTime = System.nanoTime();
         System.out.println("Step 7 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
 
-         */
+
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 8//////////////////////////////
-        /*
-        stmt = connection.createStatement();
-        command = "CREATE INDEX ON professor USING btree(department)";
-        stmt.executeUpdate(command);
-        stmt.close();
+
+        step8();
         endTime = System.nanoTime();
         System.out.println("Step 8 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
 
-         */
+
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 9//////////////////////////////
-        /*
+        step9();
         endTime = System.nanoTime();
         System.out.println("Step 9 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 10//////////////////////////////
+        step10();
         endTime = System.nanoTime();
         System.out.println("Step 10 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 11//////////////////////////////
+
+        step11();
         endTime = System.nanoTime();
         System.out.println("Step 11 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;
 
-         */
 
 
+        connection.close();
     }
 
 
