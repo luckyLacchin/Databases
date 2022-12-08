@@ -258,7 +258,7 @@ public class ConnectDB {
         results = executeQuery(command,connection);
         while (results.next()) {
             int id = results.getInt(1);
-            String address = results.getString(3);
+            String address = results.getString(2);
             System.err.println(id + ", " + address);
         }
         stmt = results.getStatement();
@@ -324,7 +324,7 @@ public class ConnectDB {
         results = executeQuery(command,connection);
         while (results.next()) {
             int id = results.getInt(1);
-            String address = results.getString(3);
+            String address = results.getString(2);
             System.err.println(id + ", " + address);
         }
         stmt = results.getStatement();
@@ -377,23 +377,20 @@ public class ConnectDB {
         startTime = endTime;
 
         ////////////////////verifica///////////////////////
-        /*
-        command = "select p.id from professor p where p.department = 1940";
+        String command = "";
+        ResultSet results = null;
+        command = "select p.id from \"Professor\" p where p.department = 1940";
         results = executeQuery(command,connection);
-        try {
-            while (results.next()) {
-                int id = results.getInt(1);
-                System.err.println("ciao" + id);
-            }
-            stmt = results.getStatement();
-            results.close();
-            stmt.close();
-        }catch(Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+        while (results.next()) {
+            int id = results.getInt(1);
+            System.err.println("ciao" + id);
         }
+        stmt = results.getStatement();
+        results.close();
+        stmt.close();
 
-         */
+
+
         //////////////////////////////////////////////////////////
         //////////////////QUESITO 6//////////////////////////////
 
