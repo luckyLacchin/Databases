@@ -3,7 +3,7 @@ package com.lacchin.com;
 import java.sql.*;
 import java.util.*;
 
-public class ConnectDB {
+public class A3_227339 {
 
     static Connection connection;
     static ArrayList<Float> listFloat;
