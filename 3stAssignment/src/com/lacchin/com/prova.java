@@ -3,7 +3,7 @@ package com.lacchin.com;
 import java.sql.*;
 import java.util.*;
 
-public class A3_227339 {
+public class prova {
 
     static Connection connection;
     static ArrayList<Float> listFloat;
@@ -16,6 +16,12 @@ public class A3_227339 {
         try {
             Class.forName("org.postgresql.Driver"); //questo mi va <-> lo metto nella libreria!
             connection = DriverManager.getConnection("jdbc:postgresql://sci-didattica.unitn.it:5432/db_024","db_024","1324");
+            //connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/assign3", "postgres", "1324");
+            /*so we use this connection in order to connect to our local db
+            So like this we are writing host = localhost and dbName: PostgreSQL_15;
+            username : postgres
+            password : 1324
+            */
             if (connection != null) {
                 //System.out.println("Connection OK!");
             } else {
@@ -27,6 +33,7 @@ public class A3_227339 {
         return connection;
     }
 
+    //execute(): This method can be use for any kind of SQL statements.
     public static void executeStatement (String q, Connection con) {
         try{
             Statement stmt = con.createStatement();
@@ -108,8 +115,9 @@ public class A3_227339 {
             statement.setString(3,"Address"+(index));
             statement.setInt(4,index++);
             statement.setFloat(5,t);
+            // solo il nome lo sto facendo con numeri a caso, il resto index per address e age
             statement.addBatch();
-            if (index % 100000 == 0) {
+            if (index % 100000 == 0) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti, forse sarebbe meglio fare meno di 10 mila
                 statement.executeBatch();
             }
         }
@@ -124,7 +132,7 @@ public class A3_227339 {
 
     public static void step4 () {
 
-        listFloat = new ArrayList<>();
+        listFloat = new ArrayList<>(); //potrei usare la stessa lista di prima, ma credo che anche così vada bene
         Random random = new Random();
         float startFloat = 0;
         float tempFloat = 0;
@@ -147,10 +155,11 @@ public class A3_227339 {
             for (float t : listFloat) {
                 statement.setString(1,"Course"+ t);
                 statement.setString(2,name_base+index);
-                statement.setString(3,"Credits" + index);
+                statement.setString(3,"Credits" + index); //anche se arriverà ad un numero senza senso
                 statement.setInt(4,listInt.get(index++));
+                //dovrei aver gestito bene anche la FK!
                 statement.addBatch();
-                if ((index % 100000 == 0)  || (index == listFloat.size())) {
+                if ((index % 100000 == 0)  || (index == listFloat.size())) { // lo faccio giusto per essere sicuro che me lo abbia fatto per tutti
                     statement.executeBatch();
                 }
 
@@ -170,7 +179,7 @@ public class A3_227339 {
         results = executeQuery(command,connection);
         while (results.next()) {
             int id = results.getInt(1);
-            System.err.println(id);
+            //System.err.println(id);
         }
         stmt = results.getStatement();
         results.close();
@@ -188,7 +197,7 @@ public class A3_227339 {
                 "WHERE department = 1940";
         stmt = connection.createStatement();
         int count = stmt.executeUpdate(command);
-
+        //System.out.println("Sono state aggiornate " + count + " tuple");
 
     }
 
@@ -230,7 +239,7 @@ public class A3_227339 {
         results = executeQuery(command,connection);
         while (results.next()) {
             int id = results.getInt(1);
-            System.err.println(id);
+            //System.err.println(id);
         }
         stmt = results.getStatement();
         results.close();
@@ -249,7 +258,7 @@ public class A3_227339 {
         try {
             stmt = connection.createStatement();
             int count = stmt.executeUpdate(command);
-
+            //System.out.println("Sono state aggiornate " + count + " tuple");
         }catch(SQLException e) {
             System.out.println("Errore nella creazione dello statement");
         }
@@ -286,6 +295,7 @@ public class A3_227339 {
         System.out.println("Step 1 needs " + (endTime - startTime) + " ns" );
         startTime = endTime;;
 
+        //oK! funziona l'unica cosa è che devo mettere professor e course minuscoli --> case sensitive, il problema è che mi vengono salvati nel db minuscoli....DA CHIEDERE
         ////////////////////////////////////////////////////////////
         ////////////////////2o quesito////////////////////////////
 
@@ -371,3 +381,51 @@ public class A3_227339 {
 
 }
 
+/*
+1a question un po' semplificata!
+DatabaseMetaData dbm = con.getMetaData();
+// check if "employee" table is there
+ResultSet tables = dbm.getTables(null, null, "employee", null);
+if (tables.next()) {
+  // Table exists
+}
+else {
+  // Table does not exist
+}
+ */
+/*
+1a question un po' più complessa ma magari meglio
+public static boolean tableExist(Connection conn, String tableName) throws SQLException {
+    boolean tExists = false;
+    try (ResultSet rs = conn.getMetaData().getTables(null, null, tableName, null)) {
+        while (rs.next()) {
+            String tName = rs.getString("TABLE_NAME");
+            if (tName != null && tName.equals(tableName)) {
+                tExists = true;
+                break;
+            }
+        }
+    }
+    return tExists;
+}*/
+
+
+////////////////////verifica///////////////////////
+        /*
+        verifica per query 6 da mettere prima tra query 5 e 6
+        String command = "";
+        ResultSet results = null;
+        command = "select p.id from \"Professor\" p where p.department = 1940";
+        results = executeQuery(command,connection);
+        while (results.next()) {
+            int id = results.getInt(1);
+            System.err.println("ciao" + id);
+        }
+        stmt = results.getStatement();
+        results.close();
+        stmt.close();
+
+         */
+
+//String timeInMillis = Float.toString(cal.getTimeInMillis());
+//statement.setString(2,name_base+timeInMillis.substring(timeInMillis.length()-5,timeInMillis.length()-1));
