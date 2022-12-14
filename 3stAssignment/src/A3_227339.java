@@ -1,5 +1,3 @@
-package com.lacchin.com;
-
 import java.sql.*;
 import java.util.*;
 
